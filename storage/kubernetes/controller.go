@@ -177,7 +177,13 @@ func (s *storage) saveInK8s(secret *v1.Secret) (*v1.Secret, error) {
 
 	logrus.Infof("[dynamiclistener] On change request for secret %v", secret)
 
-	if !s.initComplete() {
+	err := wait.PollUntilContextTimeout(context.Background(), time.Second, 10*time.Second, true, func(ctx context.Context) (done bool, err error) {
+		if !s.initComplete() {
+			return false, nil
+		}
+		return true, nil
+	})
+	if err != nil {
 		logrus.Infof("INIT not completed Not saving secret:%v, %v", secret.Name, secret.Namespace)
 		return secret, nil
 	}
