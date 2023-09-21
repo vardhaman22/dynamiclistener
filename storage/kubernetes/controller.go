@@ -94,7 +94,7 @@ func (s *storage) init(secrets v1controller.SecretController) {
 	s.secrets = secrets
 
 	secret, err := s.storage.Get()
-	logrus.Infof("[dynamiclistener] secret in starting:%v,%v", secret.Name, secret.Namespace)
+	logrus.Infof("[dynamiclistener] secret in starting:%v", secret)
 	if err == nil && cert.IsValidTLSSecret(secret) {
 		logrus.Infof("[dynamiclistener]creating secret in starting:%v,%v", secret.Name, secret.Namespace)
 		// local storage had a cached secret, ensure that it exists in Kubernetes
