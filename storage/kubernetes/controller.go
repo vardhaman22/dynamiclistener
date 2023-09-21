@@ -2,6 +2,7 @@ package kubernetes
 
 import (
 	"context"
+	"runtime/debug"
 	"sync"
 	"time"
 
@@ -222,6 +223,13 @@ func (s *storage) saveInK8s(secret *v1.Secret) (*v1.Secret, error) {
 	targetSecret.Data = secret.Data
 
 	if targetSecret.UID == "" {
+		stack := debug.Stack()
+		logrus.Info("******************************************")
+		logrus.Info("******************************************")
+		logrus.Info("******************************************")
+		logrus.Infof("stack for new tls secret creation: %v", stack)
+		logrus.Info("******************************************")
+		logrus.Info("******************************************")
 		logrus.Infof("Creating new TLS secret for %s/%s (count: %d): %v", targetSecret.Namespace, targetSecret.Name, len(targetSecret.Annotations)-1, targetSecret.Annotations)
 		return s.secrets.Create(targetSecret)
 	}
