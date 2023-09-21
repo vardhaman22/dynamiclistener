@@ -126,15 +126,20 @@ func (s *storage) syncStorage() {
 			updateStorage = true
 		}
 		logrus.Infof("[ELSE condition]got a secret:%v in namespace:%v", s.name, s.namespace)
+		logrus.Infof("[ELSE condition]value of err:%v", err)
+		logrus.Infof("[ELSE condition]value of updateStorage:%v", updateStorage)
 	}
 
 	s.Lock()
 	defer s.Unlock()
 	s.initialized = true
 	logrus.Info("[Initialized]set to true")
+	logrus.Infof("[ELSE condition]value of updateStorage:%v", updateStorage)
 	if updateStorage {
+		logrus.Info("updating storage")
 		if err := s.storage.Update(secret); err != nil {
 			logrus.Warnf("Failed to init backing storage secret: %v", err)
+			logrus.Infof("err updating storage:%v", err)
 		}
 		logrus.Infof("[IF condition after ]updated a secret:%v in namespace:%v", secret.Name, secret.Namespace)
 	}
