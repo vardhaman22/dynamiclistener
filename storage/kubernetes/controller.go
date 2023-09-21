@@ -83,6 +83,7 @@ func (s *storage) init(secrets v1controller.SecretController) {
 			return nil, nil
 		}
 		if secret.Namespace == s.namespace && secret.Name == s.name {
+			logrus.Infof("[dynamiclistener] ON Change updating secret:%v", secret)
 			if err := s.Update(secret); err != nil {
 				return nil, err
 			}
@@ -93,7 +94,9 @@ func (s *storage) init(secrets v1controller.SecretController) {
 	s.secrets = secrets
 
 	secret, err := s.storage.Get()
+	logrus.Infof("[dynamiclistener] secret in starting:%v,%v", secret.Name, secret.Namespace)
 	if err == nil && cert.IsValidTLSSecret(secret) {
+		logrus.Infof("[dynamiclistener]creating secret in starting:%v,%v", secret.Name, secret.Namespace)
 		// local storage had a cached secret, ensure that it exists in Kubernetes
 		_, err := s.secrets.Create(&v1.Secret{
 			ObjectMeta: metav1.ObjectMeta{
@@ -114,9 +117,10 @@ func (s *storage) init(secrets v1controller.SecretController) {
 			if !errors.IsNotFound(err) {
 				logrus.Warnf("Failed to init Kubernetes secret: %v", err)
 			}
+			logrus.Infof("[dynamiclistener] ELSE condition err finding secret:%v", err)
 			return
 		}
-
+		logrus.Infof("[dynamiclistener] ELSE condition updating secret:%v", secret.Name)
 		if err := s.storage.Update(secret); err != nil {
 			logrus.Warnf("Failed to init backing storage secret: %v", err)
 		}
@@ -148,6 +152,7 @@ func (s *storage) targetSecret() (*v1.Secret, error) {
 }
 
 func (s *storage) saveInK8s(secret *v1.Secret) (*v1.Secret, error) {
+	logrus.Infof("[dynamiclistener] save request for secret: %v,%v", secret.Name, secret.Namespace)
 	if !s.initComplete() {
 		return secret, nil
 	}
