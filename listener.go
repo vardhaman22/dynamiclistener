@@ -270,7 +270,9 @@ func (l *listener) checkExpiration(days int) error {
 
 func (l *listener) Accept() (net.Conn, error) {
 	l.init.Do(func() {
+		logrus.Infof("[dynamiclistener] Step1 Accept, sans length:%v", len(l.sans))
 		if len(l.sans) > 0 {
+			logrus.Infof("[dynamiclistener] Step2 Update Cert, sans length:%v", len(l.sans))
 			if err := l.updateCert(l.sans...); err != nil {
 				logrus.Errorf("dynamiclistener %s: failed to update cert with configured SANs: %v", l.Addr(), err)
 				return
@@ -399,7 +401,10 @@ func (l *listener) updateCert(cn ...string) error {
 		return err
 	}
 
+	logrus.Infof("[dynamiclistener] Step3 updateCert..value of updated:%v", updated)
+
 	if updated {
+		logrus.Infof("[dynamiclistener] Step4 calling storage update..value of secret:%v", secret)
 		if err := l.storage.Update(secret); err != nil {
 			return err
 		}
