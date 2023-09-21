@@ -99,6 +99,7 @@ func (s *storage) init(secrets v1controller.SecretController) {
 func (s *storage) syncStorage() {
 	var updateStorage bool
 	secret, err := s.Get()
+	logrus.Infof("[dynamiclistener] secret in starting:%v", secret)
 	if err == nil && cert.IsValidTLSSecret(secret) {
 		// local storage had a cached secret, ensure that it exists in Kubernetes
 		_, err := s.secrets.Create(&v1.Secret{
@@ -111,9 +112,9 @@ func (s *storage) syncStorage() {
 			Data: secret.Data,
 		})
 		if err != nil && !errors.IsAlreadyExists(err) {
-			logrus.Warnf("Failed to create Kubernetes secret: %v", err)
+			logrus.Warnf("[dynamiclistener] Failed to create Kubernetes secret: %v", err)
 		} else {
-			logrus.Infof("[IF condition]updated a secret:%v in namespace:%v", s.name, s.namespace)
+			logrus.Infof("[dynamiclistener] [IF condition]updated a secret:%v in namespace:%v", s.name, s.namespace)
 		}
 	} else {
 		// local storage was empty, try to populate it
@@ -133,16 +134,17 @@ func (s *storage) syncStorage() {
 	s.Lock()
 	defer s.Unlock()
 	s.initialized = true
-	logrus.Info("[Initialized]set to true")
-	logrus.Infof("[ELSE condition]value of updateStorage:%v", updateStorage)
+	logrus.Info("[dynamiclistener] [Initialized]set to true")
+	logrus.Infof("[dynamiclistener] [ELSE condition]value of updateStorage:%v", updateStorage)
 	if updateStorage {
-		logrus.Info("updating storage")
+		logrus.Info("[dynamiclistener] updating storage")
 		if err := s.storage.Update(secret); err != nil {
 			logrus.Warnf("Failed to init backing storage secret: %v", err)
-			logrus.Infof("err updating storage:%v", err)
+			logrus.Infof("[dynamiclistener] err updating storage:%v", err)
 		}
-		logrus.Infof("[IF condition after ]updated a secret:%v in namespace:%v", secret.Name, secret.Namespace)
+		logrus.Infof("[dynamiclistener] [IF condition after ]updated a secret:%v in namespace:%v", secret.Name, secret.Namespace)
 	}
+	logrus.Infof("[dynamiclistener]  done secrets")
 }
 
 func (s *storage) Get() (*v1.Secret, error) {
@@ -171,7 +173,7 @@ func (s *storage) targetSecret() (*v1.Secret, error) {
 
 func (s *storage) saveInK8s(secret *v1.Secret) (*v1.Secret, error) {
 	if !s.initComplete() {
-		logrus.Infof("INIT not completed Not saving secret:%s, %v", secret.Name, secret)
+		logrus.Infof("INIT not completed Not saving secret:%v, %v", secret.Name, secret.Namespace)
 		return secret, nil
 	}
 
