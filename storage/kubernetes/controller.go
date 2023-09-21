@@ -79,6 +79,7 @@ func (s *storage) init(secrets v1controller.SecretController) {
 			return nil, nil
 		}
 		if secret.Namespace == s.namespace && secret.Name == s.name {
+			logrus.Infof("[dynamiclistener] On change request for secret %v", secret)
 			if err := s.Update(secret); err != nil {
 				return nil, err
 			}
@@ -172,6 +173,9 @@ func (s *storage) targetSecret() (*v1.Secret, error) {
 }
 
 func (s *storage) saveInK8s(secret *v1.Secret) (*v1.Secret, error) {
+
+	logrus.Infof("[dynamiclistener] On change request for secret %v", secret)
+
 	if !s.initComplete() {
 		logrus.Infof("INIT not completed Not saving secret:%v, %v", secret.Name, secret.Namespace)
 		return secret, nil
@@ -179,8 +183,11 @@ func (s *storage) saveInK8s(secret *v1.Secret) (*v1.Secret, error) {
 
 	targetSecret, err := s.targetSecret()
 	if err != nil {
+		logrus.Infof("[dynamiclistener] updating targetsecret err %v", err)
 		return nil, err
 	}
+
+	logrus.Infof("[dynamiclistener] value for s.tls %v", s.tls)
 
 	// if we don't have a TLS factory we can't create certs, so don't bother trying to merge anything,
 	// in favor of just blindly replacing the fields on the Kubernetes secret.
