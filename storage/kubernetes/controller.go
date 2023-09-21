@@ -112,6 +112,8 @@ func (s *storage) syncStorage() {
 		})
 		if err != nil && !errors.IsAlreadyExists(err) {
 			logrus.Warnf("Failed to create Kubernetes secret: %v", err)
+		} else {
+			logrus.Infof("[IF condition]updated a secret:%v in namespace:%v", s.name, s.namespace)
 		}
 	} else {
 		// local storage was empty, try to populate it
@@ -123,15 +125,18 @@ func (s *storage) syncStorage() {
 		} else {
 			updateStorage = true
 		}
+		logrus.Infof("[ELSE condition]got a secret:%v in namespace:%v", s.name, s.namespace)
 	}
 
 	s.Lock()
 	defer s.Unlock()
 	s.initialized = true
+	logrus.Info("[Initialized]set to true")
 	if updateStorage {
 		if err := s.storage.Update(secret); err != nil {
 			logrus.Warnf("Failed to init backing storage secret: %v", err)
 		}
+		logrus.Infof("[IF condition after ]updated a secret:%v in namespace:%v", secret.Name, secret.Namespace)
 	}
 }
 
@@ -161,6 +166,7 @@ func (s *storage) targetSecret() (*v1.Secret, error) {
 
 func (s *storage) saveInK8s(secret *v1.Secret) (*v1.Secret, error) {
 	if !s.initComplete() {
+		logrus.Infof("INIT not completed Not saving secret:%s, %v", secret.Name, secret)
 		return secret, nil
 	}
 
