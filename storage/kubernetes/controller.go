@@ -266,5 +266,5 @@ func (s *storage) update(secret *v1.Secret) (err error) {
 func (s *storage) initComplete() bool {
 	s.RLock()
 	defer s.RUnlock()
-	return s.initialized
+	return s.secrets != nil
 }
