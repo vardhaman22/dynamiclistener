@@ -223,13 +223,6 @@ func (s *storage) saveInK8s(secret *v1.Secret) (*v1.Secret, error) {
 	targetSecret.Data = secret.Data
 
 	if targetSecret.UID == "" {
-		stack := debug.Stack()
-		logrus.Info("******************************************")
-		logrus.Info("******************************************")
-		logrus.Info("******************************************")
-		logrus.Infof("stack for new tls secret creation: %v", stack)
-		logrus.Info("******************************************")
-		logrus.Info("******************************************")
 		logrus.Infof("Creating new TLS secret for %s/%s (count: %d): %v", targetSecret.Namespace, targetSecret.Name, len(targetSecret.Annotations)-1, targetSecret.Annotations)
 		return s.secrets.Create(targetSecret)
 	}
@@ -242,6 +235,13 @@ func (s *storage) Update(secret *v1.Secret) error {
 	// accepting new connections if the apiserver becomes unavailable after the Secrets controller
 	// has been initialized. We're not passing around any contexts here, nor does the controller
 	// accept any, so there's no good way to soft-fail with a reasonable timeout.
+	stack := debug.Stack()
+	logrus.Info("******************************************")
+	logrus.Info("******************************************")
+	logrus.Info("******************************************")
+	logrus.Infof("stack for new tls secret creation: %v", string(stack))
+	logrus.Info("******************************************")
+	logrus.Info("******************************************")
 	go func() {
 		if err := s.update(secret); err != nil {
 			logrus.Errorf("Failed to save TLS secret for %s/%s: %v", secret.Namespace, secret.Name, err)
