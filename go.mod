@@ -1,10 +1,10 @@
 module github.com/rancher/dynamiclistener
 
-go 1.24.6
+go 1.25.0
 
 replace (
-	github.com/rancher/lasso => github.com/krunalhinguu/lasso v0.0.0-20250904230131-2e5b75853dc0
-	github.com/rancher/wrangler/v3 => github.com/krunalhinguu/wrangler/v3 v3.3.1-0.20250905101441-b1b29faa8ccd
+	github.com/rancher/lasso => github.com/swastik959/lasso v0.0.0-20250923105400-206df1201acf
+	github.com/rancher/wrangler/v3 => github.com/swastik959/wrangler/v3 v3.0.0-20250923110430-072b1beab0de
 )
 
 require (
@@ -24,7 +24,7 @@ require (
 	github.com/emicklei/go-restful/v3 v3.12.2 // indirect
 	github.com/evanphx/json-patch v5.9.11+incompatible // indirect
 	github.com/fxamacker/cbor/v2 v2.9.0 // indirect
-	github.com/go-logr/logr v1.4.2 // indirect
+	github.com/go-logr/logr v1.4.3 // indirect
 	github.com/go-openapi/jsonpointer v0.21.0 // indirect
 	github.com/go-openapi/jsonreference v0.21.0 // indirect
 	github.com/go-openapi/swag v0.23.0 // indirect
