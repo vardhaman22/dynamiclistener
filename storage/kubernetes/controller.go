@@ -96,7 +96,7 @@ func (s *storage) init(ctx context.Context, secrets v1controller.SecretControlle
 	// will be sent through the workqueue.
 	go func() {
 		fieldSelector := fields.Set{"metadata.name": s.name}.String()
-		lw := &cache.ListWatch{
+		lw := cache.ToListWatcherWithWatchListSemantics(&cache.ListWatch{
 			ListFunc: func(options metav1.ListOptions) (object runtime.Object, e error) {
 				options.FieldSelector = fieldSelector
 				return secrets.List(s.namespace, options)
@@ -105,7 +105,7 @@ func (s *storage) init(ctx context.Context, secrets v1controller.SecretControlle
 				options.FieldSelector = fieldSelector
 				return secrets.Watch(s.namespace, options)
 			},
-		}
+		}, secrets)
 		_, _, watch, done := toolswatch.NewIndexerInformerWatcher(lw, &v1.Secret{})
 
 		defer func() {
